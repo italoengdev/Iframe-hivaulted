@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HiVaulted Video Player</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 10px;
+        }
+        .video-container {
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            text-align: center;
+        }
+        .logo {
+            margin-bottom: 20px;
+        }
+        .logo img {
+            max-width: 120px;
+            height: auto;
+        }
+        video {
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+            background-color: #000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .video-info {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #e8f4fd;
+            border-radius: 6px;
+            border: 1px solid #d1e7ff;
+        }
+        .video-info h3 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        .video-info p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        .fallback-links {
+            margin-top: 15px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .fallback-links a {
+            color: #007bff;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 12px;
+            border: 1px solid #007bff;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        .fallback-links a:hover {
+            background-color: #007bff;
+            color: white;
+        }
+        .error-message {
+            display: none;
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #f1aeb5;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="video-container">
+        <div class="logo">
+            <img src="https://cdn.prod.website-files.com/683d0a67b191147af94a6211/6852e92dafd9afe00a2c0b6f_HiVaulted-logo.png" alt="HiVaulted Logo">
+        </div>
+        
+        <video id="videoPlayer" controls muted preload="metadata">
+            <source id="videoSource" src="" type="video/mp4">
+            <source id="videoSourceWebm" src="" type="video/webm">
+            <p>Your browser does not support the video tag.</p>
+        </video>
+        
+        <div class="video-info">
+            <h3>🎉 Your HiVaulted Post Video</h3>
+            <p>Your social media content is ready! Watch the video above or use the links below if you're having trouble viewing it.</p>
+        </div>
+        
+        <div class="fallback-links">
+            <a href="#" id="downloadLink" download>📥 Download Video</a>
+            <a href="#" id="directLink" target="_blank">🔗 Open in New Tab</a>
+        </div>
+        
+        <div class="error-message" id="errorMessage">
+            <strong>Unable to load video</strong><br>
+            Please check your internet connection or try the download link below.
+        </div>
+    </div>
+
+    <script>
+        // Get URL parameters
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
+
+        // Initialize video player
+        function initializePlayer() {
+            const videoUrl = getUrlParameter('video') || getUrlParameter('media');
+            const videoUrlWebm = getUrlParameter('video_webm') || getUrlParameter('media_webm');
+            const posterUrl = getUrlParameter('poster') || getUrlParameter('poster_image');
+            
+            const video = document.getElementById('videoPlayer');
+            const videoSource = document.getElementById('videoSource');
+            const videoSourceWebm = document.getElementById('videoSourceWebm');
+            const downloadLink = document.getElementById('downloadLink');
+            const directLink = document.getElementById('directLink');
+            const errorMessage = document.getElementById('errorMessage');
+
+            if (videoUrl) {
+                // Set video sources
+                videoSource.src = videoUrl;
+                if (videoUrlWebm) {
+                    videoSourceWebm.src = videoUrlWebm;
+                } else {
+                    videoSourceWebm.remove();
+                }
+                
+                // Set poster image
+                if (posterUrl) {
+                    video.poster = posterUrl;
+                }
+                
+                // Set download and direct links
+                downloadLink.href = videoUrl;
+                directLink.href = videoUrl;
+                
+                // Load the video
+                video.load();
+                
+                // Handle video load errors
+                video.addEventListener('error', function() {
+                    errorMessage.style.display = 'block';
+                });
+                
+                // Handle successful load
+                video.addEventListener('loadedmetadata', function() {
+                    errorMessage.style.display = 'none';
+                });
+                
+            } else {
+                // No video URL provided
+                errorMessage.innerHTML = '<strong>No video URL provided</strong><br>Please check the link and try again.';
+                errorMessage.style.display = 'block';
+                video.style.display = 'none';
+            }
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initializePlayer);
+    </script>
+</body>
+</html>
